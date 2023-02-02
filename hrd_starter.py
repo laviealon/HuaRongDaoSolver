@@ -3,6 +3,7 @@ from heapq import heappush, heappop
 import time
 import argparse
 import sys
+from adts import Stack
 
 # ====================================================================================
 
@@ -109,14 +110,14 @@ class State:
     heuristic function, f value, current depth and parent.
     """
 
-    def __init__(self, board, f, depth, parent=None):
+    def __init__(self, board, f=None, depth=None, parent=None):
         """
         :param board: The board of the state.
         :type board: Board
-        :param f: The f value of current state.
-        :type f: int
-        :param depth: The depth of current state in the search tree.
-        :type depth: int
+        :param f: The f value of current state, initialized to None.
+        :type f: Optional[int]
+        :param depth: The depth of current state in the search tree, initialized to None.
+        :type depth: Optional[int]
         :param parent: The parent of current state.
         :type parent: Optional[State]
         """
@@ -126,6 +127,55 @@ class State:
         self.parent = parent
         self.id = hash(board)  # The id for breaking ties.
 
+
+def is_goal(board):
+    """
+    Return true if this board is in the goal state.
+
+    :param board:
+    :type Board
+    :rtype bool
+    """
+    pass
+
+
+def successors(board):
+    """
+
+    :param board:
+    :type Board
+    :rtype list
+    """
+    pass
+
+
+def run_dfs(state):
+    frontier = Stack(state)
+    while not frontier.is_empty():
+        curr = frontier.pop()
+        if is_goal(curr.board):
+
+
+
+
+
+def run_astar(state):
+    pass
+
+
+def run_search(algorithm, board):
+    """
+
+    :param algorithm:
+    :param board:
+    :rtype: Board
+    """
+    inp_state = State(board)
+    if algorithm == "dfs":
+        run_dfs(inp_state)
+    else:
+        run_astar(inp_state)
+        
 
 def read_from_file(filename):
     """
@@ -191,3 +241,6 @@ if __name__ == "__main__":
 
     # read the board from the file
     board = read_from_file(args.inputfile)
+    # run specified algorithm on board
+    output = run_search(args.algo, board)
+    # write results to output file (create it if it is missing)
