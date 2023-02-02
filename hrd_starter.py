@@ -139,7 +139,7 @@ def is_goal(board):
     pass
 
 
-def successors(board):
+def get_successors(board):
     """
 
     :param board:
@@ -154,6 +154,9 @@ def run_dfs(state):
     while not frontier.is_empty():
         curr = frontier.pop()
         if is_goal(curr.board):
+            return curr
+        frontier.add_lst(get_successors(curr.board))
+    return None
 
 
 

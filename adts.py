@@ -10,5 +10,13 @@ class Stack:
     def add(self, item):
         self._contents += [item]
 
+    def add_lst(self, lst):
+        for item in lst:
+            self.add(item)
+
     def pop(self):
         return self._contents.pop(-1)
+
+
+class PriorityQueue:
+    pass
