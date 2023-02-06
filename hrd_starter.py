@@ -40,6 +40,16 @@ class Piece:
     def __repr__(self):
         return '{} {} {} {} {}'.format(self.is_goal, self.is_single, self.coord_x, self.coord_y, self.orientation)
 
+    def __copy__(self):
+        return Piece(self.is_goal, self.is_single, self.coord_x, self.coord_y, self.orientation)
+
+    def move(self, i, j):
+        """ Move the top left corner of the piece to <i,j>.
+
+        Precondition: it is legal for the piece to move to the specified coordinate.
+        """
+        self.coord_y, self.coord_x = j, i
+
 
 class Board:
     """
@@ -102,6 +112,7 @@ class Board:
             print()
 
 
+
 class State:
     """
     State class wrapping a Board with some extra current state information.
@@ -128,25 +139,109 @@ class State:
         self.id = hash(board)  # The id for breaking ties.
 
 
-def is_goal(board):
+def is_goal(grid):
     """
-    Return true if this board is in the goal state.
+    Return true if this grid is in the goal state.
 
-    :param board:
-    :type Board
+    :param: grid
+    :type: List
     :rtype bool
     """
     pass
 
 
-def get_successors(board):
+def _get_vert_successors(grid, i, j):
+    pass
+
+
+def _get_horiz_successors(grid, i, j):
+    pass
+
+
+def _get_point_successors(grid, i, j):
+    """Find successors for an isolated blank spot at <j, i>"""
+    successors = []
+    try:
+        if grid[i - 1][j] == '2':
+            # get board.pieces.copy()
+            # create new single piece at <j, i>
+            # replace it with the old single piece at <j, i-1>
+            curr = grid.copy()
+            curr[i - 1][j], curr[i][j] = '.', '2'
+            successors.append(curr)
+    except IndexError:
+        pass
+    try:
+        if grid[i + 1][j] == '2':
+            curr = grid.copy()
+            curr[i + 1][j], curr[i][j] = '.', '2'
+            successors.append(curr)
+    except IndexError:
+        pass
+    try:
+        if grid[i][j - 1] == '2':
+            curr = grid.copy()
+            curr[i][j - 1], curr[i][j] = '.', '2'
+            successors.append(curr)
+    except IndexError:
+        pass
+    try:
+        if grid[i][j + 1] == '2':
+            curr = grid.copy()
+            curr[i][j + 1], curr[i][j] = '.', '2'
+            successors.append(curr)
+    except IndexError:
+        pass
+    try:
+        if grid[i - 1][j] == 'v':
+            curr = grid.copy()
+            curr[i - 2][j], curr[i - 1][j], curr[i][j] = '.', '^', 'v'
+            successors.append(curr)
+    except IndexError:
+        pass
+    try:
+        if grid[i + 1][j] == '^':
+            curr = grid.copy()
+            curr[i - 2][j], curr[i - 1][j], curr[i][j] = '.', 'v', '^'
+            successors.append(curr)
+    except IndexError:
+        pass
+    try:
+        if grid[i][j - 1] == '>':
+            curr = grid.copy()
+            curr[i][j - 2], curr[i][j - 1], curr[i][j] = '.', '<', '>'
+            successors.append(curr)
+    except IndexError:
+        pass
+    try:
+        if grid[i][j + 1] == '<':
+            curr = grid.copy()
+            curr[i][j + 2], curr[i][j + 1], curr[i][j] = '.', '>', '<'
+            successors.append(curr)
+    except IndexError:
+        pass
+    return successors
+
+
+
+def get_successors(grid):
     """
 
     :param board:
     :type Board
     :rtype list
     """
-    pass
+    successors = []
+    for i in range(5):
+        for j in range(4):
+            if grid[i][j] == '.':
+                successors += _get_point_successors(grid, i, j)
+                if i != 4 and board.grid[i + 1][j] == '.':
+                    return successors + _get_vert_successors(grid, i, j)
+                elif board.grid[i][j + 1] == '.':
+                    return successors + _get_horiz_successors(grid, i, j)
+                
+                
 
 
 def run_dfs(state):
@@ -157,10 +252,6 @@ def run_dfs(state):
             return curr
         frontier.add_lst(get_successors(curr.board))
     return None
-
-
-
-
 
 def run_astar(state):
     pass
@@ -207,7 +298,7 @@ def read_from_file(filename):
             elif ch == char_single:
                 pieces.append(Piece(False, True, x, line_index, None))
             elif ch == char_goal:
-                if g_found == False:
+                if not g_found:
                     pieces.append(Piece(True, False, x, line_index, None))
                     g_found = True
         line_index += 1
@@ -217,6 +308,11 @@ def read_from_file(filename):
     board = Board(pieces)
 
     return board
+
+
+def output_file(outputfile, output):
+    with open(f"{outputfile}.txt", "w") as file:
+        file.write(output.display())
 
 
 if __name__ == "__main__":
@@ -247,3 +343,4 @@ if __name__ == "__main__":
     # run specified algorithm on board
     output = run_search(args.algo, board)
     # write results to output file (create it if it is missing)
+    output_file(args.outputfile, output)

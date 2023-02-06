@@ -1,3 +1,5 @@
+import heapq
+
 class Stack:
     def __init__(self, item=None):
         if item is not None:
@@ -16,7 +18,3 @@ class Stack:
 
     def pop(self):
         return self._contents.pop(-1)
-
-
-class PriorityQueue:
-    pass
