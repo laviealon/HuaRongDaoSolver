@@ -167,40 +167,51 @@ def get_manhattan_distance(grid):
             if grid[i][j] == '1':
                 return abs(i - 3) + abs(j - 1)
 
-def run_dfs(grid):
-    stack = [grid]
-    while len(stack) > 0:
-        curr = stack.pop()
-        if is_goal(curr):
-            return curr
-        for successor in get_successors(curr):
-            stack.append(successor)
-    return None
+def run_dfs(grid, output_file):
+    with open(output_file, 'w') as f:
+        path = []
+        stack = [(grid, path)]
+        seen = set()
+        while len(stack) > 0:
+            curr, path = stack.pop()
+            if display_grid(curr) in seen:
+                continue
+            seen.add(display_grid(curr))
+            if is_goal(curr):
+                for state in path + [curr]:
+                    f.write(display_grid(state) + '\n')
+                return curr
+            for successor in get_successors(curr):
+                stack.append((successor, path + [curr]))
+        return None
 
-def run_astar(grid, debug=False):
-    queue = PriorityQueue()
-    moves = 0
-    queue.put((get_manhattan_distance(grid), (grid, moves)))
-    seen = set()
-    while not queue.empty():
-        curr, moves = queue.get()[1]
-        if display_grid(curr) in seen:
-            continue
-        seen.add(display_grid(curr))
-        if is_goal(curr):
-            return curr
-        if debug:
-            print(display_grid(curr), moves)
-        for successor in get_successors(curr):
-            queue.put((get_manhattan_distance(successor) + moves + 1, (successor, moves + 1)))
-    return None
+def run_astar(grid, output_file, debug=False):
+    with open(output_file, 'w') as f:
+        path = []
+        queue = PriorityQueue()
+        moves = 0
+        queue.put((get_manhattan_distance(grid), (grid, moves, path)))
+        seen = set()
+        while not queue.empty():
+            curr, moves, path = queue.get()[1]
+            if display_grid(curr) in seen:
+                continue
+            seen.add(display_grid(curr))
+            if is_goal(curr):
+                for state in path + [curr]:
+                    f.write(display_grid(state) + '\n')
+                return curr
+            if debug:
+                print(display_grid(curr), moves)
+            for successor in get_successors(curr):
+                queue.put((get_manhattan_distance(successor) + moves + 1, (successor, moves + 1, path + [curr])))
+        return None
 
-def run_search(algo, grid):
+def run_search(algo, grid, output_file, debug=False):
     if algo == 'dfs':
-        return run_dfs(grid)
+        return run_dfs(grid, output_file)
     elif algo == 'astar':
-        return run_astar(grid)
-
+        return run_astar(grid, output_file, debug=debug)
 def output_file(filename, input_grid, output_grid):
     with open(f"{filename}", "w") as file:
         file.write(f"{display_grid(input_grid)}\n{display_grid(output_grid)}")
@@ -230,6 +241,4 @@ if __name__ == "__main__":
     # read the board from the file
     inp = create_grid_from_file(args.inputfile)
     # run specified algorithm on board
-    outp = run_search(args.algo, inp)
-    # write results to output file (create it if it is missing)
-    output_file(args.outputfile, inp, outp)
+    run_search(args.algo, inp, args.outputfile)
