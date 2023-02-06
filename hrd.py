@@ -202,7 +202,7 @@ def run_search(algo, grid):
         return run_astar(grid)
 
 def output_file(filename, input_grid, output_grid):
-    with open(f"{filename}.txt", "w") as file:
+    with open(f"{filename}", "w") as file:
         file.write(f"{display_grid(input_grid)}\n{display_grid(output_grid)}")
 
 if __name__ == "__main__":
